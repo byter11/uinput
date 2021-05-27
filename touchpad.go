@@ -68,7 +68,7 @@ func CreateTouchPad(path string, name []byte, minX int32, maxX int32, minY int32
 }
 
 func (vTouch vTouchPad) MoveTo(x int32, y int32) error {
-	return sendAbsEvent(vTouch.deviceFile, x, y)
+	return sendAbsEvent(vTouch.deviceFile, absX, absY, x, y)
 }
 
 func (vTouch vTouchPad) LeftClick() error {

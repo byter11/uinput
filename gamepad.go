@@ -44,14 +44,17 @@ func CreateGamepad(path string, name []byte) (Gamepad, error) {
 }
 
 func(vg vGamepad) SetAxis(x, y int32) error {
-	if err := sendAbsEvent(vg.deviceFile, x, y); err != nil{
-		return fmt.Errorf("failed to move axis along x axis")
+	if err := sendAbsEvent(vg.deviceFile, absX, absY, x, y); err != nil{
+		return fmt.Errorf("failed to move axis")
 	}
 	return nil
 }
 
 func(vg vGamepad) SetAxisR(x, y int32) error {
-	return fmt.Errorf("No")
+	if err := sendAbsEvent(vg.deviceFile, absRX, absRY, x, y); err != nil{
+		return fmt.Errorf("failed to move right axis")
+	}
+	return nil
 }
 
 func (vg vGamepad) BtnDown(key int) error {

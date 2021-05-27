@@ -188,10 +188,10 @@ func sendBtnEvent(deviceFile *os.File, keys []int, btnState int) (err error) {
 	return syncEvents(deviceFile)
 }
 
-func sendAbsEvent(deviceFile *os.File, xPos int32, yPos int32) error {
+func sendAbsEvent(deviceFile *os.File, xType uint16, yType uint16, xPos int32, yPos int32) error {
 	var ev [2]inputEvent
 	ev[0].Type = evAbs
-	ev[0].Code = absX
+	ev[0].Code = xType 
 	ev[0].Value = xPos
 
 	// Various tests (using evtest) have shown that positioning on x=0;y=0 doesn't trigger any event and will not move
@@ -203,7 +203,7 @@ func sendAbsEvent(deviceFile *os.File, xPos int32, yPos int32) error {
 	}
 
 	ev[1].Type = evAbs
-	ev[1].Code = absY
+	ev[1].Code = yType 
 	ev[1].Value = yPos
 
 	for _, iev := range ev {
