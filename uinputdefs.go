@@ -27,6 +27,10 @@ const (
 	relDial         = 0x7
 	absX            = 0x0
 	absY            = 0x1
+	absZ			= 0x2
+	absRX			= 0x3
+	absRY			= 0x4
+	absRZ			= 0x5
 	synReport       = 0
 	evBtnLeft       = 0x110
 	evBtnRight      = 0x111
