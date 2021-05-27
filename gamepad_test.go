@@ -30,6 +30,16 @@ func TestBtnsInValidRangeWork(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to send axis event")
 		}
+
+		err = vk.SetAxisR(-32767, 32767)
+		if err != nil {
+			t.Fatalf("Failed to send axis event")
+		}
+		// time.Sleep(time.Second)
+		err = vk.SetAxisR(0, 0)
+		if err != nil {
+			t.Fatalf("Failed to send axis event")
+		}
 		// time.Sleep(time.Second)
 	// }	
 
