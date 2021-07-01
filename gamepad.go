@@ -13,8 +13,12 @@ type Gamepad interface {
 	// SetAxisR will set the postition of the gamepad's right axis.
 	SetAxisR(x, y int32) error
 
+	// BtnDown will send a BtnDown event to an existing gamepad device.
+	// The button can be any of the predefined codes from gamepadcodes.go.
 	BtnDown(btn int) error
 
+	// BtnUp will send a BtnUp event to an existing gamepad device.
+	// The button can be any of the predefined codes from gamepadcodes.go.
 	BtnUp(btn int) error
 
 	io.Closer
@@ -25,6 +29,8 @@ type vGamepad struct {
 	deviceFile *os.File
 }
 
+// CreateGamepad will create a new gamepad using the given uinput
+// device path of the uinput device.
 func CreateGamepad(path string, name []byte) (Gamepad, error) {
 	err := validateDevicePath(path)
 	if err != nil {
@@ -64,9 +70,6 @@ func (vg vGamepad) BtnDown(key int) error {
 	return sendBtnEvent(vg.deviceFile, []int{key}, btnStatePressed)
 }
 
-// KeyUp will release the given key passed as a parameter (see keycodes.go for available keycodes). In most
-// cases it is recommended to call this function immediately after the "KeyDown" function in order to only issue a
-// single key press.
 func (vg vGamepad) BtnUp(key int) error {
 	if !BtnCodeInRange(key) {
 		return fmt.Errorf("failed to perform BtnUp. Code %d is not in range", key)
@@ -75,6 +78,8 @@ func (vg vGamepad) BtnUp(key int) error {
 	return sendBtnEvent(vg.deviceFile, []int{key}, btnStateReleased)
 }
 
+// Close will close the device and free resources.
+// It's usually a good idea to use defer to call this function.
 func (vg vGamepad) Close() error {
 	return closeDevice(vg.deviceFile)
 }

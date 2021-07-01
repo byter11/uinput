@@ -15,5 +15,9 @@ const (
 	BtnStart	= 0x13b
 	BtnThumbL	= 0x13d
 	BtnThumbR	= 0x13e
-	BtnMax 	= 0x13e
+	BtnDpadUp 	= 0x220
+	BtnDpadDown	= 0x221
+	BtnDpadLeft	= 0x222
+	BtnDpadRight= 0x223
+	BtnMax 	= 0x223
 )
