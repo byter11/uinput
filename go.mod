@@ -1,3 +1,3 @@
-module github.com/byter11/uinput
+module github.com/bendahl/uinput
 
 go 1.13
