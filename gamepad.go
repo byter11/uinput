@@ -1,9 +1,9 @@
 package uinput
 
 import (
+	"fmt"
 	"io"
 	"os"
-	"fmt"
 )
 
 type Gamepad interface {
@@ -20,6 +20,14 @@ type Gamepad interface {
 	// BtnUp will send a BtnUp event to an existing gamepad device.
 	// The button can be any of the predefined codes from gamepadcodes.go.
 	BtnUp(btn int) error
+
+	// BtnEv will send a Btn event to an existing gamepad device.
+	// The button can be any of the predefined codes from gamepadcodes.go.
+	BtnEv(btn int, ev int) error
+
+	// Dpad function similar to how xbox handles dpad inputs using 4 bits to
+	// determine directions
+	Dpad(val int)
 
 	io.Closer
 }
@@ -49,33 +57,52 @@ func CreateGamepad(path string, name []byte) (Gamepad, error) {
 	return vGamepad{name: name, deviceFile: fd}, nil
 }
 
-func(vg vGamepad) SetAxis(x, y int32) error {
-	if err := sendAbsEvent(vg.deviceFile, absX, absY, x, y); err != nil{
+func (vg vGamepad) SetAxis(x, y int32) error {
+	if err := sendAbsEvent(vg.deviceFile, absX, absY, x, y); err != nil {
 		return fmt.Errorf("failed to move axis")
 	}
 	return nil
 }
 
-func(vg vGamepad) SetAxisR(x, y int32) error {
-	if err := sendAbsEvent(vg.deviceFile, absRX, absRY, x, y); err != nil{
+func (vg vGamepad) SetAxisR(x, y int32) error {
+	if err := sendAbsEvent(vg.deviceFile, absRX, absRY, x, y); err != nil {
 		return fmt.Errorf("failed to move right axis")
 	}
 	return nil
 }
 
-func (vg vGamepad) BtnDown(key int) error {
-	if !BtnCodeInRange(key) {
-		return fmt.Errorf("failed to perform BtnDown. Code %d is not in range", key)
-	}
-	return sendBtnEvent(vg.deviceFile, []int{key}, btnStatePressed)
+func (vg vGamepad) BtnEv(key int, ev int) error {
+	return sendBtnEvent(vg.deviceFile, []int{key}, ev)
 }
 
-func (vg vGamepad) BtnUp(key int) error {
-	if !BtnCodeInRange(key) {
-		return fmt.Errorf("failed to perform BtnUp. Code %d is not in range", key)
+func testBit(n int, k int) int {
+	if n&(1 << (k-1)) != 0 {
+		return 1
+	}
+	return 0
+}
+
+func (vg vGamepad) Dpad(val int) {
+	k := 1
+	for _, btn := range []int{BtnDpadUp, BtnDpadDown, BtnDpadLeft, BtnDpadRight} {
+		vg.BtnEv(btn, testBit(val, k))
+		k++
+	}
+}
+
+func (vg vGamepad) BtnDown(btn int) error {
+	if !BtnCodeInRange(btn) {
+		return fmt.Errorf("failed to perform BtnDown. Code %d is not in range", btn)
+	}
+	return sendBtnEvent(vg.deviceFile, []int{btn}, btnStatePressed)
+}
+
+func (vg vGamepad) BtnUp(btn int) error {
+	if !BtnCodeInRange(btn) {
+		return fmt.Errorf("failed to perform BtnUp. Code %d is not in range", btn)
 	}
 
-	return sendBtnEvent(vg.deviceFile, []int{key}, btnStateReleased)
+	return sendBtnEvent(vg.deviceFile, []int{btn}, btnStateReleased)
 }
 
 // Close will close the device and free resources.
@@ -139,7 +166,6 @@ func createVGamepadDevice(path string, name []byte, minX int32, maxX int32, minY
 			Absmin: absMin,
 			Absmax: absMax})
 }
-
 
 func BtnCodeInRange(btn int) bool {
 	return btn >= BtnMin && btn <= BtnMax
